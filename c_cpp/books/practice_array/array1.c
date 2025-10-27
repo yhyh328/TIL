@@ -31,4 +31,14 @@ void main() {
     printf("Row size (bytes): %d\n", row_size);
     printf("Number of rows: %d\n", total_rows);
     printf("Number of columns: %d\n", total_cols);
+    
+    printf("\n");
+    
+    for (int y = 0; y < total_rows; y++) {
+        for (int x = 0; x < total_cols; x++) {
+            printf("a[%d][%d] = %d ", y, x, arr[y][x]);
+        }
+        printf("\n");
+    }
+
 } 

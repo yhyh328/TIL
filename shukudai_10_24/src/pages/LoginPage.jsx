@@ -8,12 +8,11 @@ const LoginPage = () => {
   const [isWrong, setIsWrong] = useState(false);
   const navigate = useNavigate();
   const checkInfo = () => {
-    if (myId === curId && myPw === curPw) {
-      navigate("/todo_page", { state: { msg: myId } });
-    } else {
-      setIsWrong(true);
-    }
+    (myId === curId && myPw === curPw) ?
+    navigate("/todo_page", { state: { msg: myId } }) :
+    setIsWrong(true);
   };
+    
   return (
     <>
       <h3>Login Page</h3>
