@@ -2,20 +2,22 @@
 
 int memo[45 + 1];
 
-int dp(int n, int *p);
+int f(int n, int *p);
 
-int main() {
-    *(memo + 0) = 0;
-    *(memo + 1) = 1;
-    for (int i = 2; i <= 45; i++) *(memo + i) = -1;
+int main(void) {
+
     int n;
     scanf("%d", &n);
-     printf("%d\n", dp(n, memo));
+
+    *(memo + 0) = 0;
+    *(memo + 1) = 1;
+    for (int i = 2; i < 45 + 1; i++) *(memo + i) = -1;
+    printf("%d", f(n, memo)); 
+    return 0;
 }
 
-int dp(int n, int *p) {
-    if (n <= 0) return *(p + 0);
+int f(int n, int *p) {
     if (*(p + n) != -1) return *(p + n);
-    *(p + n) = dp(n - 1, p) + dp(n - 2, p);
+    *(p + n) = f(n - 1, p) + f(n - 2, p);
     return *(p + n);
 }
