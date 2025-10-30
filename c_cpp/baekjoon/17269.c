@@ -3,9 +3,9 @@
 #include <stdlib.h>
 
 int *solve(int n, int m, char *x, char *y);
-int *recursive_func(int *t);
+int *recursive_func(int *arr, int len);
 
-int main(void) {
+int main() {
 
     int n, m;
     scanf("%d %d", &n, &m);
@@ -13,7 +13,11 @@ int main(void) {
     char x[n + 1], y[m + 1];
     scanf("%s %s", x, y);
 
-    printf("%ld%", solve(x, y));
+    int *res = solve(n, m, x, y);
+    int percent = *(res + 0) * 10 + *(res + 1);
+
+    printf("%d%%\n", percent);
+    free(res);
     return 0;
 
 }
@@ -27,31 +31,49 @@ int *solve(int n, int m, char *p, char *q) {
 
     int arr[n + m + 1];
 
-    for (int i = 0; i < (n + m) / 2; i++) {
+    int len = 0;
 
+    int i = 0;
+    int j, k;
+
+    for (i = 0; ; i++) {
         if (!(*(p + i)) || !(*(q + i))) break;
-
-        int j = *(p + i) - 'A';
-        int k = *(q + i) - 'A';
-
-        arr[i * 2] = dict[j];
-        arr[i * 2 + 1] = dict[k];
+        j = *(p + i) - 'A';
+        k = *(q + i) - 'A';
+        arr[len++] = dict[j];
+        arr[len++] = dict[k];
     }
 
-    return recursive_func(arr);
+    while (i < n && *(p + i)) {
+        j = *(p + i) - 'A';
+        arr[len++] = dict[j];
+        i++;
+    }
+
+    while (i < m && *(q + i)) {
+        k = *(q + i) - 'A';
+        arr[len++] = dict[k];
+        i++;
+    }
+
+    return recursive_func(arr, len);
 }
 
-int *recursive_func(int *t) {
-    int len = (sizeof(t) / sizeof(t[0]));
+int *recursive_func(int *arr, int len) {
     if (len == 2) {
-        int ans[2] = {*(t + 0), *(t + 1)};
+        int *ans = (int *)malloc(2 * sizeof(int));
+        *(ans + 0) = *(arr + 0);
+        *(ans + 1) = *(arr + 1);
         return ans;
     }
     int tmp[len - 1];
-    int i, j;
-    for (int  = 1; j < len; j++) {
+    int i;
+    // printf("len%d\n", len);
+    for (int j = 1; j < len; j++) {
         i = j - 1;
-        *(tmp + i) = (*(t + i) +  *(t + j)) % 10;
+        *(tmp + i) = (*(arr + i) +  *(arr + j)) % 10;
+        // printf("%d, ", *(tmp + i));
     }
-    return *recursive_func(int *tmp);
+    // printf("\n");
+    return recursive_func(tmp, len - 1);
 }
