@@ -1,0 +1,78 @@
+# 이미지 기반 프로덕션 배포 설정
+# 이미 빌드된 이미지를 사용 (빌드 없이 실행)
+# 사용법: docker compose -f docker-compose.prod.images.yaml --env-file .env up -d
+#
+# 필요한 파일:
+# - docker-compose.prod.images.yaml (이 파일)
+# - .env (환경 변수)
+# - db/init.sql (선택사항, 없어도 동작)
+
+services:
+  db:
+    image: postgres:16
+    container_name: pg-prod
+    environment:
+      POSTGRES_USER: ${DB_USER:-appuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-appdb}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata-prod:/var/lib/postgresql/data
+      # db/init.sql이 있으면 마운트 (없어도 동작)
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-appuser} -d ${DB_NAME:-appdb} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  backend:
+    # 이미 빌드된 이미지 사용 (빌드 없이)
+    image: docker-fullstack-backend:latest
+    container_name: springboot-prod
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-appdb}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-appuser}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-prod}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_DDL_AUTO:-update}
+      SPRING_JPA_SHOW_SQL: ${SPRING_SHOW_SQL:-false}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:80}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/hello || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  frontend:
+    # 이미 빌드된 이미지 사용 (빌드 없이)
+    image: docker-fullstack-frontend:latest
+    container_name: react-prod
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  pgdata-prod:
+
+networks:
+  app-network:
+    driver: bridge
