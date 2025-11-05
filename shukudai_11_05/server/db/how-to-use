@@ -1,0 +1,17 @@
+chmod +x run_docker.sh pg_controller.sh
+
+# Start a Postgres on the first free port (5432..5500)
+./run_docker.sh
+
+# See which port:
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
+
+# Enter (auto-picks the latest) or specify a port:
+./pg_controller.sh --enter
+./pg_controller.sh --enter 5433
+
+# Logs:
+./pg_controller.sh --logs 5433
+
+# Remove:
+./pg_controller.sh --remove 5433
