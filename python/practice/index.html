@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<title>FastApiTest</title>
+		<meta charset="UTF-8">
+	</head>
+	<script>
+		async function appleClick(color) {
+
+			const url = `http://localhost:8000/order/apple?color=${color}`
+
+			const response = await fetch(url);
+			const result = await response.json();
+			// console.log(result);
+			alert(result);
+
+			document.getElementById('msg').innerHTML = result;
+
+			// document.getElementById('msg').innerHTML = 
+			// 	(color === 'red') ? "🍎" : "🍏";
+			// alert(`${document.getElementById('msg').innerHTML}が注文されました。`)
+			// // (color === 'red') ? alert("🍎") : alert("🍏")
+		}
+
+	</script>
+	<body>
+		<button onClick="appleClick('red')">🍎</button>
+		<button onClick="appleClick('green')">🍏</button>
+		<div id="msg"></div>
+	</body>
+</html>
+

@@ -1,13 +1,20 @@
 import { useState } from "react";
 
 const TodoInput = ({addTodo}) => {
+  const [todoTitle, setTodoTitle] = useState("");
   const [todoContent, setTodoContent] = useState("");
   const handleAdd = () => {
-    addTodo(todoContent);
+    addTodo(todoTitle, todoContent);
+    setTodoTitle("");
     setTodoContent("");
   }
   return (
     <>
+        <input 
+          type="text" 
+          value={todoTitle} 
+          onChange={(e) => setTodoTitle(e.target.value)}
+        />
         <input 
           type="text" 
           value={todoContent} 

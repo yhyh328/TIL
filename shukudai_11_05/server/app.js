@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "127.0.0.1",
     database: "shukudai_11_06",
     password: "password",
-    port: 5432,          // ⬅️ use 5433
+    port: 5432,          
     ssl: false,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 10000,
@@ -27,12 +27,12 @@ pool.on("error", (err) => {
 console.error("PG Pool error:", err);
 });
 
-// 라우트
+
 app.post("/login", async (req, res) => {
     try {
       // accept both shapes for safety
-      const reqID = req.body.reqID ?? req.body.id;
-      const reqPW = req.body.reqPW ?? req.body.pw;
+      const reqID =  req.body.id;
+      const reqPW =  req.body.pw;
   
       if (!reqID || !reqPW) {
         return res.status(400).json({ ok: false, message: "id and pw are required" });
@@ -59,14 +59,9 @@ app.post("/login", async (req, res) => {
     }
   });
 
-const allGetQuery   = "SELECT * FROM fruit_world ORDER BY fruit_id";
-const singleGetQUERY= "SELECT * FROM fruit_world WHERE fruit_id = $1";
-const postQuery     = "INSERT INTO fruit_world (fruit_id, fruit_img) VALUES ($1, $2)";
-const deleteQuery   = "DELETE FROM fruit_world WHERE fruit_id = $1";
-
-app.get("/fruit/all", async (req, res) => {
+app.get("/get_todos", async (req, res) => {
   try {
-    const { rows } = await pool.query(allGetQuery);
+    const { rows } = await pool.query("SELECT * FROM articles");
     return res.json(rows);
   } catch (e) {
     console.error(e);
@@ -74,46 +69,38 @@ app.get("/fruit/all", async (req, res) => {
   }
 });
 
-app.get("/fruit/:id", async (req, res) => {
+
+app.post("/del_todo/:id", async (req, res) => {
+    try {
+      const reqID = req.body.id;
+    
+      if (!reqID) {
+        return res.status(400).json({ ok: false, message: `Error occur -> reqID is ${reqID}` });
+      }
+  
+      await pool.query(
+        "UPDATE articles SET article_is_deleted = true WHERE article_id = $1", [reqID]
+      );
+  
+    } catch (e) {
+      console.error(e);
+    }
+  });
+
+app.post("/reg_todo", async (req, res) => {
   try {
-    const { rows } = await pool.query(singleGetQUERY, [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ error: "not found" });
-    return res.json(rows[0].fruit_img);
+    const { title, content, author } = req.body;
+    if (!title || !content || !author) return res.status(400).json({ error: "id and img required" });
+    await pool.query(
+      "insert into articles (article_title, article_content, article_author) values($1, $2, $3);", 
+      [title, content, author]
+    );
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "DB error" });
   }
 });
 
-app.post("/fruit/reg", async (req, res) => {
-  try {
-    const { id, img } = req.body;
-    if (!id || !img) return res.status(400).json({ error: "id and img required" });
-    const r = await pool.query(postQuery, [id, img]);
-    if (r.rowCount === 1) {
-      const { rows } = await pool.query(allGetQuery);
-      return res.json(rows);
-    }
-    return res.status(400).json({ error: "insert failed" });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: "DB error" });
-  }
-});
-
-app.delete("/fruit/del/:id", async (req, res) => {
-  try {
-    const r = await pool.query(deleteQuery, [req.params.id]);
-    if (r.rowCount === 1) {
-      const { rows } = await pool.query(allGetQuery);
-      return res.json(rows);
-    }
-    return res.status(404).json({ error: "not found" });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: "DB error" });
-  }
-});
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

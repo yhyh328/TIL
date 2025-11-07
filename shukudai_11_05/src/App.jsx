@@ -10,6 +10,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/todo_page" element={<TodoPage />} />
+          <Route path="/*" element={"登録されなかったURLです。"} />
         </Routes>
       </BrowserRouter>
     </>

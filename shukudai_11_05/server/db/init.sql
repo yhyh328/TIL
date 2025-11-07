@@ -33,6 +33,9 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES    TO appuser;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO appuser;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO appuser;
 
+DROP TABLE IF EXISTS articles;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE IF NOT EXISTS users (
     user_id VARCHAR(10) PRIMARY KEY,
     user_pw VARCHAR(20) NOT NULL
@@ -42,6 +45,6 @@ CREATE TABLE IF NOT EXISTS articles (
     article_id SERIAL PRIMARY KEY,
     article_title VARCHAR(50) NOT NULL,
     article_content TEXT NOT NULL,
-    article_author VARCHAR(10) REFERENCES users(user_id)
-    article_is_deleted BOOLEAN
+    article_author VARCHAR(10) REFERENCES users(user_id),
+    article_is_deleted BOOLEAN DEFAULT false
 );
