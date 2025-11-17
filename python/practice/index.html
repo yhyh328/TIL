@@ -4,28 +4,96 @@
 		<meta charset="UTF-8">
 	</head>
 	<script>
-		async function appleClick(color) {
 
-			const url = `http://localhost:8000/order/apple?color=${color}`
+        const url = "http://localhost:8000"
 
-			const response = await fetch(url);
-			const result = await response.json();
-			// console.log(result);
-			alert(result);
+        const getFood = () => document.getElementById("food").value.trim();
+        const getImg = () => document.getElementById("img").value.trim();
 
-			document.getElementById('msg').innerHTML = result;
+        const blankAlert = () => {
+            alert("Do not enter blank");
+            document.getElementById("food").value = "";
+            document.getElementById("img").value = "";
+            document.getElementById("result").innerHTML = "";
+            return;
+        }
 
-			// document.getElementById('msg').innerHTML = 
-			// 	(color === 'red') ? "🍎" : "🍏";
-			// alert(`${document.getElementById('msg').innerHTML}が注文されました。`)
-			// // (color === 'red') ? alert("🍎") : alert("🍏")
-		}
+		const get_menus = async() => {
+            const response = await fetch(`${url}/menus`)
+            const result = await response.json();
+            // console.log(result);
+            document.getElementById("result").innerHTML = JSON.stringify(result);
+        }
+
+        const get_menu_food = async() => {
+            const food = getFood();
+            if (!food) {
+                blankAlert();
+                return;
+            }
+            const response = await fetch(`${url}/menu/${food}`);
+            const result = await response.json();
+            console.log(result)
+            document.getElementById("result").innerHTML = JSON.stringify(result);
+        }
+
+        const post_menu = async() => {
+            const food = getFood();
+            const img = getImg();
+            if (!food || !img) {
+                blankAlert();
+                return;
+            }
+            const response = await fetch(`${url}/menu/`, {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json', },
+                body: JSON.stringify({ food: food, img: img, }),
+            });
+            const result = await response.json();
+            document.getElementById("result").innerHTML = result;
+        }
+
+        const put_menu = async() => {
+            const food = getFood();
+            const img = getImg();
+            if (!food || !img) {
+                blankAlert();
+                return;
+            }
+            const response = await fetch(`${url}/menu/`, {
+                method: 'PUT',
+                headers: { 'Content-type': 'application/json', },
+                body: JSON.stringify({ food: food, img: img, }),
+            });
+            const result = await response.json();
+            document.getElementById("result").innerHTML = result;
+        }
+
+        const delete_menu = async() => {
+            const food = getFood();
+            if (!food) {
+                blankAlert();
+                return;
+            }
+            const response = await fetch(`${url}/menu/${food}`, {
+                method: 'DELETE',
+                headers: { 'Content-type': 'application/json', },
+                body: JSON.stringify({ food: food }),
+            });
+            const result = await response.json();
+            document.getElementById("result").innerHTML = result;
+        }
 
 	</script>
 	<body>
-		<button onClick="appleClick('red')">🍎</button>
-		<button onClick="appleClick('green')">🍏</button>
-		<div id="msg"></div>
+        <input id="food" value=""/>
+        <input id="img" />
+		<button onClick="get_menu_food()">検索</button>
+		<button onClick="get_menus()">全て</button>
+        <button onClick="post_menu()">登録</button>
+        <button onClick="put_menu()">更新</button>
+		<button onClick="delete_menu()">削除</button>
+		<div id="result"></div>
 	</body>
 </html>
 

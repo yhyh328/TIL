@@ -326,5 +326,10 @@ pyvenv.cfg
 pip-selfcheck.json
 
 
+### JUCE ###
+**/Builds
+**/JuceLibraryCode
+**/.DS_Store
+
 
 # End of https://www.toptal.com/developers/gitignore/api/java,react,node,linux

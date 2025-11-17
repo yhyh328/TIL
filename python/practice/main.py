@@ -4,6 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
 
+from .model import FruitWorld
+from db import session
+
+
 app = FastAPI()
 
 app.add_middleware(
